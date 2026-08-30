@@ -1,529 +1,755 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Content Opportunity Scoring | ML Research</title>
+<title>Content Opportunity Scoring | Srilaya</title>
 
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      line-height: 1.7;
-      max-width: 950px;
-      margin: auto;
-      padding: 40px 24px;
-      color: #222;
-      background: #f7f7f7;
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Inter, Arial, sans-serif;
+    background: #f5f7fb;
+    color: #172033;
+    line-height: 1.7;
+}
+
+.container {
+    max-width: 1100px;
+    margin: auto;
+    padding: 30px 22px;
+}
+
+.hero {
+    background: linear-gradient(135deg, #111827, #243b53);
+    color: white;
+    padding: 65px 45px;
+    border-radius: 22px;
+    margin-bottom: 30px;
+    box-shadow: 0 15px 40px rgba(0,0,0,.12);
+}
+
+.badge {
+    display: inline-block;
+    padding: 7px 14px;
+    border-radius: 30px;
+    background: rgba(255,255,255,.12);
+    font-size: 13px;
+    margin-bottom: 18px;
+}
+
+.hero h1 {
+    font-size: 42px;
+    line-height: 1.15;
+    margin: 0 0 15px;
+}
+
+.hero p {
+    font-size: 19px;
+    color: #dbe4ef;
+    max-width: 750px;
+}
+
+.meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 25px;
+}
+
+.meta span {
+    background: rgba(255,255,255,.10);
+    padding: 9px 14px;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.card {
+    background: white;
+    padding: 32px;
+    border-radius: 16px;
+    margin-bottom: 25px;
+    box-shadow: 0 5px 20px rgba(20,30,50,.06);
+}
+
+h2 {
+    font-size: 27px;
+    margin-top: 0;
+    color: #172033;
+}
+
+h3 {
+    margin-top: 28px;
+    color: #243b53;
+}
+
+.question {
+    border-left: 5px solid #3b82f6;
+    background: #eff6ff;
+    padding: 20px 22px;
+    border-radius: 8px;
+    font-size: 18px;
+}
+
+.metrics {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    margin: 25px 0;
+}
+
+.metric {
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+    padding: 22px 15px;
+    text-align: center;
+    border-radius: 12px;
+}
+
+.metric strong {
+    display: block;
+    font-size: 30px;
+    color: #2563eb;
+}
+
+.metric small {
+    color: #64748b;
+}
+
+.results {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    margin: 25px 0;
+}
+
+.result-card {
+    padding: 25px;
+    border-radius: 14px;
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+}
+
+.result-card h3 {
+    margin-top: 0;
+}
+
+.score {
+    font-size: 42px;
+    font-weight: bold;
+    color: #2563eb;
+}
+
+.bar {
+    height: 12px;
+    background: #e5e7eb;
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 12px 0 20px;
+}
+
+.bar-fill {
+    height: 100%;
+    background: #2563eb;
+    border-radius: 10px;
+}
+
+.flow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin: 25px 0;
+}
+
+.flow-item {
+    background: #eef2ff;
+    padding: 13px 18px;
+    border-radius: 10px;
+    font-weight: 600;
+}
+
+.arrow {
+    color: #64748b;
+    font-size: 22px;
+}
+
+.reason-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+}
+
+.reason {
+    border: 1px solid #e5e7eb;
+    padding: 18px;
+    border-radius: 12px;
+    background: #fafafa;
+}
+
+.reason strong {
+    display: block;
+    color: #2563eb;
+    margin-bottom: 5px;
+}
+
+.warning {
+    background: #fff8e6;
+    border-left: 5px solid #eab308;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.success {
+    background: #ecfdf5;
+    border-left: 5px solid #10b981;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th, td {
+    padding: 14px;
+    border-bottom: 1px solid #e5e7eb;
+    text-align: left;
+}
+
+th {
+    background: #f8fafc;
+}
+
+footer {
+    text-align: center;
+    padding: 35px 10px;
+    color: #64748b;
+}
+
+footer a {
+    color: #2563eb;
+    text-decoration: none;
+}
+
+@media (max-width: 800px) {
+    .metrics {
+        grid-template-columns: repeat(2, 1fr);
     }
 
-    main {
-      background: white;
-      padding: 45px;
-      border-radius: 12px;
+    .results {
+        grid-template-columns: 1fr;
     }
 
-    h1 {
-      font-size: 36px;
-      line-height: 1.2;
-      margin-bottom: 10px;
+    .reason-grid {
+        grid-template-columns: 1fr;
     }
 
-    h2 {
-      margin-top: 45px;
-      border-bottom: 1px solid #ddd;
-      padding-bottom: 8px;
+    .hero {
+        padding: 40px 25px;
     }
 
-    h3 {
-      margin-top: 28px;
+    .hero h1 {
+        font-size: 32px;
     }
-
-    .subtitle {
-      font-size: 19px;
-      color: #555;
-      margin-bottom: 30px;
-    }
-
-    .meta {
-      background: #f0f4f8;
-      padding: 18px;
-      border-radius: 8px;
-      margin: 25px 0;
-    }
-
-    .metric-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 15px;
-      margin: 25px 0;
-    }
-
-    .metric {
-      background: #f5f5f5;
-      padding: 20px;
-      border-radius: 8px;
-      text-align: center;
-    }
-
-    .metric strong {
-      display: block;
-      font-size: 28px;
-      margin-bottom: 5px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 25px 0;
-    }
-
-    th, td {
-      border: 1px solid #ddd;
-      padding: 12px;
-      text-align: left;
-    }
-
-    th {
-      background: #f0f0f0;
-    }
-
-    .note {
-      padding: 16px;
-      background: #fff8e1;
-      border-left: 4px solid #d89b00;
-      margin: 20px 0;
-    }
-
-    .success {
-      padding: 16px;
-      background: #eef7ee;
-      border-left: 4px solid #4d8b4d;
-      margin: 20px 0;
-    }
-
-    code {
-      background: #f1f1f1;
-      padding: 2px 5px;
-      border-radius: 4px;
-    }
-
-    footer {
-      margin-top: 50px;
-      padding-top: 25px;
-      border-top: 1px solid #ddd;
-      color: #555;
-      font-size: 14px;
-    }
-
-    @media (max-width: 650px) {
-      main {
-        padding: 25px;
-      }
-
-      h1 {
-        font-size: 28px;
-      }
-    }
-  </style>
+}
+</style>
 </head>
 
 <body>
 
-<main>
-
-  <h1>Ranking Content Opportunities Using Search-Performance Signals</h1>
-
-  <p class="subtitle">
-    A machine-learning study for prioritizing content pages for human review
-  </p>
-
-  <div class="meta">
-    <strong>Project:</strong> FlyRank ML Internship Capstone<br>
-    <strong>Model:</strong> Random Forest Classifier<br>
-    <strong>Validation:</strong> Client-grouped train/test split<br>
-    <strong>Primary metric:</strong> Precision@20
-  </div>
-
+<div class="container">
 
-  <!-- ABSTRACT -->
-
-  <h2>Abstract</h2>
-
-  <p>
-    This project investigates whether search-performance and content signals
-    can be used to rank pages that show signs associated with decline.
-    I trained a Random Forest classifier using 29 search, engagement,
-    content-age, and performance features and evaluated it using a
-    client-grouped train/test split.
-    On the held-out test set, the Random Forest measured a Precision@20 of
-    1.00 compared with 0.45 for the Week-4 heuristic baseline.
-    The resulting ranking is intended as directional decision support for
-    prioritizing pages for human review, not as proof of causation or a
-    guarantee of future performance.
-  </p>
+<!-- HERO -->
 
+<section class="hero">
 
-  <!-- INTRODUCTION -->
+<div class="badge">FLYRANK ML INTERNSHIP · CAPSTONE</div>
 
-  <h2>1. Introduction / Problem Statement</h2>
+<h1>Ranking Content Opportunities Using Search-Performance Signals</h1>
 
-  <p>
-    Content teams may have many pages that require attention, making it
-    difficult to decide which pages should be reviewed first.
-    This project explores whether available search-performance and content
-    signals can help prioritize those pages.
-  </p>
+<p>
+A machine-learning study for prioritizing content pages for human review.
+</p>
 
-  <p>
-    The research question is:
-  </p>
+<div class="meta">
+<span>🌲 Random Forest</span>
+<span>🔬 Client-grouped validation</span>
+<span>📊 Precision@20</span>
+<span>🛡️ Decision support</span>
+</div>
 
-  <div class="success">
-    <strong>
-      Can search-performance and content signals be used to rank content
-      pages that show signs associated with decline, so that a content team
-      can prioritize pages for human review?
-    </strong>
-  </div>
+</section>
 
-  <p>
-    The model is designed to support prioritization. It does not
-    automatically decide whether a page should be refreshed, deleted,
-    redirected, or otherwise changed.
-  </p>
 
+<!-- OVERVIEW -->
 
-  <!-- DATA -->
+<section class="card">
 
-  <h2>2. Data</h2>
+<h2>Abstract</h2>
 
-  <p>
-    The project uses the anonymized search dataset provided for the
-    FlyRank ML Internship. The dataset contains 30,000 records and
-    44 original columns.
-  </p>
+<p>
+This project investigates whether search-performance and content signals
+can be used to rank pages that show signs associated with decline.
+I trained a Random Forest classifier using 29 search, engagement,
+content-age, and performance features and evaluated it using a
+client-grouped train/test split.
+On the held-out test set, the Random Forest measured a Precision@20
+of 1.00 compared with 0.45 for the Week-4 heuristic baseline.
+The resulting ranking is intended as directional decision support for
+prioritizing pages for human review, not as proof of causation or a
+guarantee of future performance.
+</p>
 
-  <p>
-    The available signals include search volume, impressions, clicks,
-    sessions, content age, average position, CTR, engagement measures,
-    and related page-performance information.
-  </p>
+</section>
 
-  <h3>Target Definition</h3>
 
-  <p>
-    A binary target called <code>is_declining_label</code> was created
-    from the trend direction. Pages whose trend direction was
-    <code>down</code> were assigned a value of 1. Other pages were
-    assigned a value of 0.
-  </p>
+<!-- KEY METRICS -->
 
-  <div class="metric-grid">
+<section class="card">
 
-    <div class="metric">
-      <strong>30,000</strong>
-      Records
-    </div>
+<h2>Project at a Glance</h2>
 
-    <div class="metric">
-      <strong>44</strong>
-      Original columns
-    </div>
+<div class="metrics">
 
-    <div class="metric">
-      <strong>16,262</strong>
-      Declining label = 1
-    </div>
+<div class="metric">
+<strong>30K</strong>
+<small>Records</small>
+</div>
 
-    <div class="metric">
-      <strong>13,738</strong>
-      Other label = 0
-    </div>
+<div class="metric">
+<strong>29</strong>
+<small>Model Features</small>
+</div>
 
-  </div>
+<div class="metric">
+<strong>6,163</strong>
+<small>Test Rows</small>
+</div>
 
-  <h3>Exclusions</h3>
+<div class="metric">
+<strong>0</strong>
+<small>Client Overlap</small>
+</div>
 
-  <p>
-    <code>trend_direction</code> and <code>trend_pct</code> were not used
-    as model features because they are directly related to the target.
-    Including them could expose information about the outcome being
-    predicted.
-  </p>
+</div>
 
-  <p>
-    Client identifiers were used for grouped validation but are not
-    included in the public recommendation output.
-  </p>
+</section>
 
 
-  <!-- METHODOLOGY -->
-
-  <h2>3. Methodology</h2>
+<!-- QUESTION -->
 
-  <h3>Features</h3>
+<section class="card">
 
-  <p>
-    The final feature set contains 29 variables covering search,
-    engagement, content-age, and page-performance signals.
-  </p>
+<h2>1. Introduction / Problem Statement</h2>
 
-  <h3>Model</h3>
+<p>
+Content teams may have many pages that require attention, making it
+difficult to decide which pages should be reviewed first.
+This project explores whether available search-performance and content
+signals can help prioritize those pages.
+</p>
 
-  <p>
-    I used a Random Forest classifier with 200 decision trees,
-    a fixed random seed, balanced class weights, and parallel processing.
-    Missing numerical values were handled using median imputation.
-  </p>
+<div class="question">
 
-  <h3>Validation Design</h3>
+<strong>Research Question</strong>
 
-  <p>
-    Instead of randomly splitting individual pages, I used a
-    client-grouped 80/20 train/test split. Pages belonging to the same
-    client were kept together. This resulted in 23,837 training rows and
-    6,163 testing rows with zero client overlap.
-  </p>
+<p>
+Can search-performance and content signals be used to rank content pages
+that show signs associated with decline, so that a content team can
+prioritize pages for human review?
+</p>
 
-  <div class="metric-grid">
-
-    <div class="metric">
-      <strong>23,837</strong>
-      Training rows
-    </div>
-
-    <div class="metric">
-      <strong>6,163</strong>
-      Testing rows
-    </div>
+</div>
 
-    <div class="metric">
-      <strong>0</strong>
-      Client overlap
-    </div>
+<p>
+The model supports prioritization. It does not automatically decide
+whether a page should be refreshed, deleted, redirected, or otherwise
+changed.
+</p>
 
-    <div class="metric">
-      <strong>29</strong>
-      Model features
-    </div>
+</section>
 
-  </div>
 
-  <h3>Leakage Check</h3>
-
-  <p>
-    I checked the final feature list for target-related fields.
-    No direct target-related columns were detected.
-  </p>
-
-  <div class="success">
-    Leakage audit result: <strong>PASS</strong><br>
-    Potential target-related features: <strong>[]</strong>
-  </div>
-
-
-  <!-- RESULTS -->
-
-  <h2>4. Results</h2>
-
-  <p>
-    Both the Random Forest and the Week-4 heuristic baseline were
-    evaluated on the same client-grouped test set using Precision@20.
-  </p>
-
-  <table>
-    <thead>
-      <tr>
-        <th>Approach</th>
-        <th>Precision@20</th>
-      </tr>
-    </thead>
-
-    <tbody>
-      <tr>
-        <td>Week-4 baseline</td>
-        <td>0.45</td>
-      </tr>
-
-      <tr>
-        <td>Random Forest</td>
-        <td><strong>1.00</strong></td>
-      </tr>
-    </tbody>
-  </table>
-
-  <p>
-    The Random Forest measured a Precision@20 of 1.00 on this test set,
-    compared with 0.45 for the Week-4 baseline.
-    This is an observed result from the evaluated dataset and should be
-    interpreted as directional evidence rather than a guarantee of future
-    performance.
-  </p>
-
-
-  <!-- LIMITATIONS -->
-
-  <h2>5. Limitations &amp; Honest Framing</h2>
-
-  <p>
-    This analysis was evaluated on one dataset using one client-grouped
-    test split. Its measured performance may therefore differ on future
-    data, other clients, or other datasets.
-  </p>
-
-  <p>
-    Precision@20 measures the quality of the highest-ranked pages in this
-    test set. It does not prove that the model will always rank useful
-    pages first.
-  </p>
-
-  <p>
-    Feature importance indicates which signals the model relied on.
-    It does not establish that those signals caused a page to decline.
-  </p>
-
-  <p>
-    The model identifies pages associated with the declining label.
-    It does not establish why a page declined and does not guarantee that
-    refreshing a page will improve its performance.
-  </p>
-
-  <div class="note">
-    <strong>Interpretation:</strong>
-    The output should be treated as decision support for human review,
-    rather than as an automatic content-management system.
-  </div>
+<!-- DATA -->
 
-
-  <!-- RECOMMENDATIONS -->
-
-  <h2>6. Ranked Recommendations</h2>
-
-  <p>
-    The model produces a ranked queue based on its estimated probability
-    of the declining class. Reason codes provide simple signals that help
-    a reviewer understand why a page may have been prioritized.
-  </p>
-
-  <table>
-    <thead>
-      <tr>
-        <th>Example reason code</th>
-        <th>Interpretation</th>
-      </tr>
-    </thead>
-
-    <tbody>
-      <tr>
-        <td>RECENT_IMPRESSION_DECLINE</td>
-        <td>Recent impressions are below the previous period.</td>
-      </tr>
-
-      <tr>
-        <td>LOWER_CTR</td>
-        <td>CTR is below the dataset median.</td>
-      </tr>
-
-      <tr>
-        <td>OLDER_CONTENT</td>
-        <td>Content age is above the dataset median.</td>
-      </tr>
-
-      <tr>
-        <td>STALENESS</td>
-        <td>Days since the last update are above the dataset median.</td>
-      </tr>
-
-      <tr>
-        <td>WEAKER_POSITION</td>
-        <td>Average position is weaker than the dataset median.</td>
-      </tr>
-    </tbody>
-  </table>
-
-  <p>
-    These reason codes are supporting signals rather than causal
-    explanations. A human reviewer should evaluate the actual page and
-    context before deciding what action, if any, is appropriate.
-  </p>
-
-
-  <!-- REPRODUCIBILITY -->
-
-  <h2>7. Reproducibility</h2>
-
-  <p>
-    The analysis is implemented in the project's Jupyter/Colab notebooks.
-    The capstone notebook contains the dataset loading, feature
-    preparation, client-grouped validation, model training, baseline
-    comparison, leakage check, recommendation ranking, and artifact
-    generation.
-  </p>
-
-  <p>
-    The final artifacts include a model comparison table, ranked action
-    queue, and feature-importance output.
-  </p>
-
-  <p>
-    The project is maintained in the FlyRank ML Internship GitHub
-    repository.
-  </p>
-
-
-  <!-- ACKNOWLEDGMENTS -->
-
-  <h2>8. Acknowledgments &amp; Data Credit</h2>
-
-  <p>
-    This project was completed as part of the FlyRank ML Internship.
-    The analysis uses the anonymized internship dataset provided for the
-    program.
-  </p>
-
-  <p>
-    FlyRank:
-    <a href="https://flyrank.ai/" target="_blank" rel="noopener">
-      https://flyrank.ai/
-    </a>
-  </p>
-
-
-  <!-- ABOUT -->
-
-  <h2>9. Decision-Support Summary</h2>
-
-  <p>
-    The final system turns a machine-learning prediction into a ranked
-    content-review queue. The purpose is to help humans focus attention
-    on pages that show signals associated with decline.
-  </p>
-
-  <p>
-    The measured test result supports using the ranking as a directional
-    prioritization tool within the evaluated setting. It should not be
-    interpreted as evidence about Google's ranking algorithm or as proof
-    that a particular content intervention will cause better performance.
-  </p>
-
-
-  <footer>
-
-    <p>
-      <strong>Project:</strong>
-      FlyRank ML Internship Capstone
-    </p>
-
-    <p>
-      This page presents an anonymized, public-safe summary of the
-      analysis. No client names, private queries, credentials, or raw
-      private exports are included.
-    </p>
-
-  </footer>
-
-</main>
+<section class="card">
+
+<h2>2. Data</h2>
+
+<p>
+The project uses the anonymized search dataset provided for the FlyRank
+ML Internship. The dataset contains 30,000 records and 44 original
+columns.
+</p>
+
+<div class="metrics">
+
+<div class="metric">
+<strong>30,000</strong>
+<small>Total records</small>
+</div>
+
+<div class="metric">
+<strong>44</strong>
+<small>Original columns</small>
+</div>
+
+<div class="metric">
+<strong>16,262</strong>
+<small>Declining = 1</small>
+</div>
+
+<div class="metric">
+<strong>13,738</strong>
+<small>Other = 0</small>
+</div>
+
+</div>
+
+<h3>Target Definition</h3>
+
+<p>
+A binary target called <code>is_declining_label</code> was created from
+the trend direction. Pages whose trend direction was <code>down</code>
+were assigned a value of 1. Other pages were assigned 0.
+</p>
+
+<h3>Excluded Signals</h3>
+
+<p>
+<code>trend_direction</code> and <code>trend_pct</code> were excluded
+from the model features because they are directly related to the target.
+Including them could expose information about the outcome being predicted.
+</p>
+
+</section>
+
+
+<!-- METHODOLOGY -->
+
+<section class="card">
+
+<h2>3. Methodology</h2>
+
+<h3>Model Pipeline</h3>
+
+<div class="flow">
+
+<div class="flow-item">Search Data</div>
+<div class="arrow">→</div>
+
+<div class="flow-item">Declining Label</div>
+<div class="arrow">→</div>
+
+<div class="flow-item">29 Features</div>
+<div class="arrow">→</div>
+
+<div class="flow-item">Grouped Split</div>
+<div class="arrow">→</div>
+
+<div class="flow-item">Random Forest</div>
+<div class="arrow">→</div>
+
+<div class="flow-item">Ranked Queue</div>
+
+</div>
+
+<h3>Random Forest</h3>
+
+<p>
+I used a Random Forest classifier with 200 decision trees, a fixed
+random seed, balanced class weights, and parallel processing.
+Missing numerical values were handled using median imputation.
+</p>
+
+<h3>Validation</h3>
+
+<p>
+Instead of randomly splitting individual pages, I used a client-grouped
+80/20 train/test split. Pages belonging to the same client were kept
+together.
+</p>
+
+<div class="metrics">
+
+<div class="metric">
+<strong>23,837</strong>
+<small>Training rows</small>
+</div>
+
+<div class="metric">
+<strong>6,163</strong>
+<small>Testing rows</small>
+</div>
+
+<div class="metric">
+<strong>0</strong>
+<small>Client overlap</small>
+</div>
+
+<div class="metric">
+<strong>29</strong>
+<small>Features</small>
+</div>
+
+</div>
+
+<div class="success">
+<strong>Leakage Audit: PASS</strong><br>
+No direct target-related columns were detected in the final feature set.
+</div>
+
+</section>
+
+
+<!-- RESULTS -->
+
+<section class="card">
+
+<h2>4. Results vs Baseline</h2>
+
+<p>
+Both approaches were evaluated on the same client-grouped test set
+using Precision@20.
+</p>
+
+<div class="results">
+
+<div class="result-card">
+
+<h3>Week-4 Baseline</h3>
+
+<div class="score">0.45</div>
+
+<div class="bar">
+<div class="bar-fill" style="width:45%"></div>
+</div>
+
+<p>
+Heuristic ranking based on staleness and CTR opportunity.
+</p>
+
+</div>
+
+
+<div class="result-card">
+
+<h3>Random Forest</h3>
+
+<div class="score">1.00</div>
+
+<div class="bar">
+<div class="bar-fill" style="width:100%"></div>
+</div>
+
+<p>
+Observed Precision@20 on the held-out client-grouped test set.
+</p>
+
+</div>
+
+</div>
+
+<div class="warning">
+
+<strong>Interpretation</strong>
+
+<p>
+The 1.00 Precision@20 result is an observed measurement on this
+evaluated test set. It is directional evidence, not a guarantee of
+future performance.
+</p>
+
+</div>
+
+</section>
+
+
+<!-- LIMITATIONS -->
+
+<section class="card">
+
+<h2>5. Limitations &amp; Honest Framing</h2>
+
+<p>
+This analysis was evaluated on one dataset using one client-grouped
+test split. Performance may differ on future data, other clients,
+or other datasets.
+</p>
+
+<p>
+Precision@20 measures the quality of the highest-ranked pages in this
+test set. It does not prove that the model will always rank useful
+pages first.
+</p>
+
+<p>
+Feature importance indicates which signals the model relied on.
+It does not establish that those signals caused a page to decline.
+</p>
+
+<p>
+The model identifies pages associated with the declining label.
+It does not establish why a page declined and does not guarantee that
+refreshing a page will improve its performance.
+</p>
+
+<div class="warning">
+<strong>Decision-support boundary</strong>
+
+<p>
+The output should be treated as decision support for human review,
+rather than as an automatic content-management system.
+</p>
+
+</div>
+
+</section>
+
+
+<!-- RECOMMENDATIONS -->
+
+<section class="card">
+
+<h2>6. Ranked Recommendations</h2>
+
+<p>
+The model produces a ranked queue based on its estimated probability
+of the declining class. Reason codes provide supporting signals that
+help reviewers understand why a page may have been prioritized.
+</p>
+
+<div class="reason-grid">
+
+<div class="reason">
+<strong>RECENT_IMPRESSION_DECLINE</strong>
+Recent impressions are below the previous period.
+</div>
+
+<div class="reason">
+<strong>LOWER_CTR</strong>
+CTR is below the dataset median.
+</div>
+
+<div class="reason">
+<strong>OLDER_CONTENT</strong>
+Content age is above the dataset median.
+</div>
+
+<div class="reason">
+<strong>STALENESS</strong>
+Days since the last update are above the dataset median.
+</div>
+
+<div class="reason">
+<strong>WEAKER_POSITION</strong>
+Average position is weaker than the dataset median.
+</div>
+
+</div>
+
+<p>
+These reason codes are supporting signals rather than causal
+explanations. A human reviewer should evaluate the actual page and
+context before deciding what action, if any, is appropriate.
+</p>
+
+</section>
+
+
+<!-- REPRODUCIBILITY -->
+
+<section class="card">
+
+<h2>7. Reproducibility</h2>
+
+<p>
+The analysis is implemented in the project's Jupyter/Colab notebooks.
+The capstone notebook contains dataset loading, feature preparation,
+client-grouped validation, model training, baseline comparison,
+leakage checking, recommendation ranking, and artifact generation.
+</p>
+
+<p>
+The final artifacts include a model comparison table, ranked action
+queue, and feature-importance output.
+</p>
+
+<p>
+The project is maintained in the FlyRank ML Internship GitHub repository.
+</p>
+
+</section>
+
+
+<!-- DECISION SUPPORT -->
+
+<section class="card">
+
+<h2>8. Decision-Support Summary</h2>
+
+<p>
+The final system turns a machine-learning prediction into a ranked
+content-review queue. The purpose is to help humans focus attention
+on pages that show signals associated with decline.
+</p>
+
+<p>
+The measured test result supports using the ranking as a directional
+prioritization tool within the evaluated setting. It should not be
+interpreted as evidence about Google's ranking algorithm or as proof
+that a particular content intervention will cause better performance.
+</p>
+
+</section>
+
+
+<!-- ACKNOWLEDGMENTS -->
+
+<section class="card">
+
+<h2>9. Acknowledgments &amp; Data Credit</h2>
+
+<p>
+This project was completed as part of the FlyRank ML Internship.
+The analysis uses the anonymized internship dataset provided for
+the program.
+</p>
+
+<p>
+<strong>FlyRank:</strong>
+<a href="https://flyrank.ai/" target="_blank">
+flyrank.ai
+</a>
+</p>
+
+</section>
+
+
+<!-- FOOTER -->
+
+<footer>
+
+<p>
+<strong>FlyRank ML Internship · Machine Learning Capstone</strong>
+</p>
+
+<p>
+Public-safe research summary · No client names, private queries,
+credentials, or raw private exports included.
+</p>
+
+</footer>
+
+</div>
 
 </body>
 </html>
